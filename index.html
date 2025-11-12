@@ -19,6 +19,38 @@
     <meta name="twitter:description" content="Free online retro games across multiple genres.">
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <style>
+        /* Arcade / Retro color variables (neon / arcade inspired) */
+        :root {
+            --arcade-bg: #050013; /* deep midnight */
+            --arcade-bg-2: #0b0b1a;
+            --arcade-primary: #00ffd5; /* neon cyan */
+            --arcade-accent: #ff2d95;  /* neon magenta */
+            --arcade-highlight: #ffd400; /* neon yellow */
+            --arcade-secondary: #7eff00; /* neon green */
+            --arcade-border: #8a00ff; /* purple border */
+            --arcade-muted: #9aa0ff;
+            --arcade-glow: 0 0 14px rgba(0,255,213,0.18);
+        }
+
+        /* Utility theme class: apply to body or top wrapper to enable arcade styling */
+        .arcade-theme {
+            background-color: var(--arcade-bg);
+            color: var(--arcade-primary);
+        }
+
+        /* Scoped overrides when arcade theme is active */
+        .arcade-theme h1 { color: var(--arcade-highlight); text-shadow: 0 0 12px var(--arcade-highlight); }
+        .arcade-theme h2, .arcade-theme p { color: var(--arcade-primary); text-shadow: 0 0 6px var(--arcade-primary); }
+        .arcade-theme .game-card { background-color: #071022; border-color: var(--arcade-accent); box-shadow: var(--arcade-glow); }
+        .arcade-theme .game-image { background-color: #08101a; border-color: var(--arcade-border); box-shadow: 0 0 8px var(--arcade-accent); color: var(--arcade-primary); }
+        .arcade-theme .game-card span { color: var(--arcade-primary); text-shadow: 0 0 6px var(--arcade-primary); }
+        .arcade-theme .modal-content { background-color: #070712; border-color: var(--arcade-border); box-shadow: 0 0 20px var(--arcade-accent); }
+        .arcade-theme .modal-content h3 { color: var(--arcade-highlight); text-shadow: 0 0 10px var(--arcade-highlight); }
+        .arcade-theme .close { color: var(--arcade-primary); }
+        .arcade-theme .close:hover { color: var(--arcade-highlight); }
+        .arcade-theme .control-btn { background-color: var(--arcade-secondary); color: #000; box-shadow: 0 4px rgba(0,200,0,0.3); }
+        .arcade-theme .control-btn:hover { filter: brightness(1.05); }
+
         body {
             background-color: #000;
             color: #fff;
@@ -94,6 +126,10 @@
             font-size: 0.7em;
         }
 
+        /* Ensure thumbnails exactly fit the card box without overflowing */
+        .game-image { overflow: hidden; position: relative; }
+        .game-image img.game-thumb { width: 100%; height: 100%; object-fit: cover; display: block; border-radius: 6px; }
+
         .game-card span {
             color: #00ffff;
             font-size: 0.8em;
@@ -114,6 +150,8 @@
             z-index: 100;
             justify-content: center;
             align-items: center;
+            overflow-y: auto; /* allow modal to scroll if content taller than viewport */
+            -webkit-overflow-scrolling: touch; /* smooth scrolling on iOS */
         }
 
         .modal-content {
@@ -125,6 +163,10 @@
             width: 90%;
             text-align: center;
             position: relative;
+            max-height: 90vh; /* keep content within viewport */
+            overflow: auto; /* allow scrolling inside modal box */
+            -webkit-overflow-scrolling: touch;
+            box-sizing: border-box;
         }
 
         .modal-content h3 {
@@ -223,6 +265,60 @@
         .control-btn:hover {
             background-color: #00cc00;
         }
+
+        /* Floating theme toggle (fixed, follows scroll) */
+        .theme-toggle {
+            position: fixed;
+            right: 18px;
+            bottom: 18px;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--arcade-primary, #00ffd5), var(--arcade-accent, #ff2d95));
+            box-shadow: 0 8px 24px rgba(0,0,0,0.45), 0 0 18px rgba(0,255,213,0.12);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            cursor: pointer;
+            border: 2px solid rgba(255,255,255,0.06);
+            transition: transform 0.12s ease, opacity 0.12s ease;
+        }
+
+        .theme-toggle:hover { transform: translateY(-4px); }
+
+        .theme-toggle .icon { width: 26px; height: 26px; color: #070712; }
+
+        /* small aria label bubble */
+        .theme-toggle[aria-pressed='true'] { box-shadow: 0 10px 30px rgba(0,0,0,0.55), 0 0 22px rgba(255,214,0,0.12); }
+
+    /* Light mode overrides — make site blend into a light theme when toggled */
+    .light-mode { background-color: #f6f7fb !important; color: #0b0b1a !important; }
+    .light-mode h1 { color: #0b2540; text-shadow: none !important; }
+    .light-mode h2, .light-mode p { color: #243447; text-shadow: none !important; }
+    .light-mode .game-card { background-color: #ffffff; border-color: #e6e9ef; box-shadow: 0 6px 18px rgba(16,24,40,0.04); color: #0b0b1a; }
+    .light-mode .game-image { background-color: #f8fafc; border-color: #e6e9ef; box-shadow: none; color: #0b0b1a; }
+    .light-mode .game-card span { color: #0b0b1a; text-shadow: none; }
+    .light-mode .modal { background-color: rgba(11,11,26,0.06); }
+    .light-mode .modal-content { background-color: #ffffff; color: #0b0b1a; border-color: #e6e9ef; box-shadow: 0 8px 24px rgba(16,24,40,0.06); }
+    .light-mode .modal-content h3 { color: #0b2540; text-shadow: none; }
+    .light-mode .close { color: #334155; }
+    .light-mode #gameCanvas { border-color: #d6dbe5; background-color: #ffffff; box-shadow: none; }
+    .light-mode .control-btn { background-color: #e9f6ef; color: #0b0b1a; box-shadow: 0 4px rgba(0,0,0,0.04); }
+    .light-mode .control-btn:hover { filter: brightness(0.98); }
+    .light-mode .theme-toggle { background: linear-gradient(135deg,#f5f7fa,#e9eef8); border-color:#cfd8e3; box-shadow: 0 8px 20px rgba(16,24,40,0.06); }
+    .light-mode .theme-toggle .icon { color: #0b0b1a; }
+    .light-mode .theme-toggle svg path { fill: #0b0b1a !important; }
+    /* Button-specific light-mode styles for less eye strain */
+    .light-mode .btn { background-color: #f1f5f9; color: #0b0b1a; border: 1px solid #e2e8f0; box-shadow: 0 4px 12px rgba(16,24,40,0.04); }
+    .light-mode .btn:hover { background-color: #eef2f7; }
+    .light-mode .btn:active { transform: translateY(1px); }
+    .light-mode .ghost { background: transparent; color: #334155; border: 1px solid #e6e9ef; box-shadow: none; }
+    .light-mode .ghost:hover { background-color: #f8fafc; }
+    .light-mode .primary { background-color: #e2f0ff; color: #0b2540; border: 1px solid #cfe8ff; box-shadow: 0 6px 18px rgba(2,6,23,0.06); }
+    .light-mode .primary:hover { filter: brightness(0.98); }
+    .light-mode .control-btn { background-color: #f3f7f5; color: #0b0b1a; border: 1px solid #e6e9ef; box-shadow: 0 4px rgba(16,24,40,0.04); }
+    .light-mode .control-btn:active { box-shadow: 0 2px rgba(16,24,40,0.04); transform: translateY(1px); }
 
         #pause-play-btn {
             margin-top: 20px;
@@ -493,231 +589,235 @@
         <h1>Classic Arcade Games Online</h1>
     </header>
     <main>
+        <a href='https://ko-fi.com/W7W31O27PK' target='_blank'><img height='36' style='border:0px;height:36px;' src='https://storage.ko-fi.com/cdn/kofi5.png?v=6' border='0' alt='Support the page for better versions at ko-fi.com' /></a>
         <section id="classic-arcade">
-            <a href='https://ko-fi.com/W7W31O27PK' target='_blank'><img height='36' style='border:0px;height:36px;' src='https://storage.ko-fi.com/cdn/kofi5.png?v=6' border='0' alt='Buy Me a Coffee at ko-fi.com' /></a>
             <h2>Classic Arcade-Style Games</h2>
             <p>Relive the golden age of gaming with iconic arcade titles. Fast-paced, pixel-perfect fun awaits!</p>
             <div class="game-card" data-game="pong">
-                <div class="game-image">Image Placeholder</div>
+                <div class="game-image"><img class="game-thumb" alt="Pong thumbnail" src="Pong.png" /></div>
                 <span>Pong</span>
             </div>
             <div class="game-card" data-game="breakout">
-                <div class="game-image">Image Placeholder</div>
+                <div class="game-image"><img class="game-thumb" alt="Breakout thumbnail" src="Breakout.jpeg" /></div>
                 <span>Breakout</span>
             </div>
             <div class="game-card" data-game="snake">
-                <div class="game-image">Image Placeholder</div>
+                <div class="game-image"><img class="game-thumb" alt="Snake thumbnail" src="Snake.jpg" /></div>
                 <span>Snake</span>
             </div>
             <div class="game-card" data-game="tetris">
-                <div class="game-image">Image Placeholder</div>
+                <div class="game-image"><img class="game-thumb" alt="Tetris thumbnail" src="Tetris.jpeg" /></div>
                 <span>Tetris</span>
             </div>
             <div class="game-card" data-game="flappy-bird">
-                <div class="game-image">Image Placeholder</div>
+                <div class="game-image"><img class="game-thumb" alt="Flappy Bird thumbnail" src="FlappyBird.jpeg" /></div>
                 <span>Flappy Bird</span>
             </div>
             <div class="game-card" data-game="space-invaders">
-                <div class="game-image">Image Placeholder</div>
+                <div class="game-image"><img class="game-thumb" alt="Space Invaders thumbnail" src="SpaceInvaders.png" /></div>
                 <span>Space Invaders</span>
             </div>
             <div class="game-card" data-game="frogger">
-                <div class="game-image">Image Placeholder</div>
+                <div class="game-image"><img class="game-thumb" alt="Frogger thumbnail" src="" /></div>
                 <span>Frogger</span>
             </div>
             <div class="game-card" data-game="centipede">
-                <div class="game-image">Image Placeholder</div>
+                <div class="game-image"><img class="game-thumb" alt="Centipede thumbnail" src="" /></div>
                 <span>Centipede</span>
             </div>
             <div class="game-card" data-game="qix">
-                <div class="game-image">Image Placeholder</div>
+                <div class="game-image"><img class="game-thumb" alt="Qix thumbnail" src="" /></div>
                 <span>Qix</span>
             </div>
         </section>
-        <a href='https://ko-fi.com/W7W31O27PK' target='_blank'><img height='36' style='border:0px;height:36px;' src='https://storage.ko-fi.com/cdn/kofi5.png?v=6' border='0' alt='Buy Me a Coffee at ko-fi.com' /></a>
         <section id="puzzle-logic">
+            <a href='https://ko-fi.com/W7W31O27PK' target='_blank'><img height='36' style='border:0px;height:36px;' src='https://storage.ko-fi.com/cdn/kofi5.png?v=6' border='0' alt='Support the page for better versions at ko-fi.com' /></a>
             <h2>Puzzle and Logic Games</h2>
             <p>Challenge your mind with brain-teasing games. Strategize and solve your way to victory.</p>
             <div class="game-card" data-game="2048">
-                <div class="game-image">Image Placeholder</div>
+                <div class="game-image"><img class="game-thumb" alt="2048 thumbnail" src="2048.jpeg" /></div>
                 <span>2048</span>
             </div>
             <div class="game-card" data-game="minesweeper">
-                <div class="game-image">Image Placeholder</div>
+                <div class="game-image"><img class="game-thumb" alt="Minesweeper thumbnail" src="Minesweeper.png" /></div>
                 <span>Minesweeper</span>
             </div>
             <div class="game-card" data-game="sudoku">
-                <div class="game-image">Image Placeholder</div>
+                <div class="game-image"><img class="game-thumb" alt="Sudoku thumbnail" src="Sudoku.png" /></div>
                 <span>Sudoku</span>
             </div>
             <div class="game-card" data-game="simon-says">
-                <div class="game-image">Image Placeholder</div>
+                <div class="game-image"><img class="game-thumb" alt="Simon Says thumbnail" src="SimonSays.jpeg" /></div>
                 <span>Simon Says</span>
             </div>
             <div class="game-card" data-game="lights-out">
-                <div class="game-image">Image Placeholder</div>
+                <div class="game-image"><img class="game-thumb" alt="Lights Out thumbnail" src="Lightsout.jpeg" /></div>
                 <span>Lights Out</span>
             </div>
             <div class="game-card" data-game="15-puzzle">
-                <div class="game-image">Image Placeholder</div>
+                <div class="game-image"><img class="game-thumb" alt="15-Puzzle thumbnail" src="15-Puzzle.png" /></div>
                 <span>15-Puzzle</span>
             </div>
             <div class="game-card" data-game="nonogram">
-                <div class="game-image">Image Placeholder</div>
+                <div class="game-image"><img class="game-thumb" alt="Nonogram thumbnail" src="Nonogram.jpeg" /></div>
                 <span>Nonogram</span>
             </div>
             <div class="game-card" data-game="sokoban">
-                <div class="game-image">Image Placeholder</div>
+                <div class="game-image"><img class="game-thumb" alt="Sokoban thumbnail" src="" /></div>
                 <span>Sokoban</span>
             </div>
             <div class="game-card" data-game="mastermind">
-                <div class="game-image">Image Placeholder</div>
+                <div class="game-image"><img class="game-thumb" alt="Mastermind thumbnail" src="" /></div>
                 <span>Mastermind</span>
             </div>
             <div class="game-card" data-game="wotski">
-                <div class="game-image">Image Placeholder</div>
+                <div class="game-image"><img class="game-thumb" alt="Wotski thumbnail" src="" /></div>
                 <span>Wotski</span>
             </div>
         </section>
-        <a href='https://ko-fi.com/W7W31O27PK' target='_blank'><img height='36' style='border:0px;height:36px;' src='https://storage.ko-fi.com/cdn/kofi5.png?v=6' border='0' alt='Buy Me a Coffee at ko-fi.com' /></a>
         <section id="card-board">
+            <a href='https://ko-fi.com/W7W31O27PK' target='_blank'><img height='36' style='border:0px;height:36px;' src='https://storage.ko-fi.com/cdn/kofi5.png?v=6' border='0' alt='Support the page for better versions at ko-fi.com' /></a>
             <h2>Card and Board Games</h2>
             <p>Enjoy timeless classics. Perfect for quick sessions or relaxing gameplay.</p>
             <div class="game-card" data-game="tic-tac-toe">
-                <div class="game-image">Image Placeholder</div>
+                <div class="game-image"><img class="game-thumb" alt="Tic-Tac-Toe thumbnail" src="Tic-Tac-Toe.png" /></div>
                 <span>Tic-Tac-Toe</span>
             </div>
             <div class="game-card" data-game="connect-four">
-                <div class="game-image">Image Placeholder</div>
+                <div class="game-image"><img class="game-thumb" alt="Connect Four thumbnail" src="Connect-4.jpg" /></div>
                 <span>Connect Four</span>
             </div>
             <div class="game-card" data-game="solitaire">
-                <div class="game-image">Image Placeholder</div>
+                <div class="game-image"><img class="game-thumb" alt="Solitaire thumbnail" src="" /></div>
                 <span>Solitaire</span>
             </div>
             <div class="game-card" data-game="blackjack">
-                <div class="game-image">Image Placeholder</div>
+                <div class="game-image"><img class="game-thumb" alt="Blackjack thumbnail" src="" /></div>
                 <span>Blackjack</span>
             </div>
             <div class="game-card" data-game="memory-match">
-                <div class="game-image">Image Placeholder</div>
+                <div class="game-image"><img class="game-thumb" alt="Memory Match thumbnail" src="MemoryMatch.jpeg" /></div>
                 <span>Memory Match</span>
             </div>
             <div class="game-card" data-game="war">
-                <div class="game-image">Image Placeholder</div>
+                <div class="game-image"><img class="game-thumb" alt="War thumbnail" src="War.jpeg" /></div>
                 <span>War</span>
             </div>
             <div class="game-card" data-game="go-fish">
-                <div class="game-image">Image Placeholder</div>
+                <div class="game-image"><img class="game-thumb" alt="Go Fish thumbnail" src="" /></div>
                 <span>Go Fish</span>
             </div>
             <div class="game-card" data-game="mahjong-solitaire">
-                <div class="game-image">Image Placeholder</div>
+                <div class="game-image"><img class="game-thumb" alt="Mahjong Solitaire thumbnail" src="" /></div>
                 <span>Mahjong Solitaire</span>
             </div>
             <div class="game-card" data-game="battleship">
-                <div class="game-image">Image Placeholder</div>
+                <div class="game-image"><img class="game-thumb" alt="Battleship thumbnail" src="" /></div>
                 <span>Battleship</span>
             </div>
             <div class="game-card" data-game="checkers">
-                <div class="game-image">Image Placeholder</div>
+                <div class="game-image"><img class="game-thumb" alt="Checkers thumbnail" src="Checkers.png" /></div>
                 <span>Checkers</span>
             </div>
         </section>
-        <a href='https://ko-fi.com/W7W31O27PK' target='_blank'><img height='36' style='border:0px;height:36px;' src='https://storage.ko-fi.com/cdn/kofi5.png?v=6' border='0' alt='Buy Me a Coffee at ko-fi.com' /></a>
         <section id="word-trivia">
+            <a href='https://ko-fi.com/W7W31O27PK' target='_blank'><img height='36' style='border:0px;height:36px;' src='https://storage.ko-fi.com/cdn/kofi5.png?v=6' border='0' alt='Support the page for better versions at ko-fi.com' /></a>
             <h2>Word and Trivia Games</h2>
             <p>Test your knowledge and vocabulary. Fun for word enthusiasts of all ages.</p>
             <div class="game-card" data-game="hangman">
-                <div class="game-image">Image Placeholder</div>
+                <div class="game-image"><img class="game-thumb" alt="Hangman thumbnail" src="Hangman.jpeg" /></div>
                 <span>Hangman</span>
             </div>
             <div class="game-card" data-game="wordle">
-                <div class="game-image">Image Placeholder</div>
+                <div class="game-image"><img class="game-thumb" alt="Wordle thumbnail" src="Wordle.png" /></div>
                 <span>Wordle</span>
             </div>
             <div class="game-card" data-game="boggle">
-                <div class="game-image">Image Placeholder</div>
+                <div class="game-image"><img class="game-thumb" alt="Boggle thumbnail" src="Boggle.png" /></div>
                 <span>Boggle</span>
             </div>
             <div class="game-card" data-game="word-search">
-                <div class="game-image">Image Placeholder</div>
+                <div class="game-image"><img class="game-thumb" alt="Word Search thumbnail" src="WordSearch.png" /></div>
                 <span>Word Search</span>
             </div>
             <div class="game-card" data-game="trivia-quiz">
-                <div class="game-image">Image Placeholder</div>
+                <div class="game-image"><img class="game-thumb" alt="Trivia Quiz thumbnail" src="" /></div>
                 <span>Trivia Quiz</span>
             </div>
             <div class="game-card" data-game="anagram-solver">
-                <div class="game-image">Image Placeholder</div>
+                <div class="game-image"><img class="game-thumb" alt="Anagram Solver thumbnail" src="" /></div>
                 <span>Anagram Solver</span>
             </div>
             <div class="game-card" data-game="crossword">
-                <div class="game-image">Image Placeholder</div>
+                <div class="game-image"><img class="game-thumb" alt="Crossword thumbnail" src="" /></div>
                 <span>Crossword</span>
             </div>
         </section>
-        <a href='https://ko-fi.com/W7W31O27PK' target='_blank'><img height='36' style='border:0px;height:36px;' src='https://storage.ko-fi.com/cdn/kofi5.png?v=6' border='0' alt='Buy Me a Coffee at ko-fi.com' /></a>
         <section id="action-platform">
+            <a href='https://ko-fi.com/W7W31O27PK' target='_blank'><img height='36' style='border:0px;height:36px;' src='https://storage.ko-fi.com/cdn/kofi5.png?v=6' border='0' alt='Support the page for better versions at ko-fi.com' /></a>
             <h2>Action and Platform Games</h2>
             <p>Jump, run, and dodge obstacles in action-packed adventures.</p>
             <div class="game-card" data-game="endless-runner">
-                <div class="game-image">Image Placeholder</div>
+                <div class="game-image"><img class="game-thumb" alt="Endless Runner thumbnail" src="" /></div>
                 <span>Endless Runner</span>
             </div>
             <div class="game-card" data-game="doodle-jump">
-                <div class="game-image">Image Placeholder</div>
+                <div class="game-image"><img class="game-thumb" alt="Doodle Jump thumbnail" src="" /></div>
                 <span>Doodle Jump</span>
             </div>
             <div class="game-card" data-game="simple-platformer">
-                <div class="game-image">Image Placeholder</div>
+                <div class="game-image"><img class="game-thumb" alt="Simple Platformer thumbnail" src="" /></div>
                 <span>Simple Platformer</span>
             </div>
         </section>
-        <a href='https://ko-fi.com/W7W31O27PK' target='_blank'><img height='36' style='border:0px;height:36px;' src='https://storage.ko-fi.com/cdn/kofi5.png?v=6' border='0' alt='Buy Me a Coffee at ko-fi.com' /></a>
         <section id="utility-mini">
+            <a href='https://ko-fi.com/W7W31O27PK' target='_blank'><img height='36' style='border:0px;height:36px;' src='https://storage.ko-fi.com/cdn/kofi5.png?v=6' border='0' alt='Support the page for better versions at ko-fi.com' /></a>
             <h2>Utility and Mini Games</h2>
             <p>Play quick, addictive mini-games. Simple yet endlessly entertaining.</p>
             <div class="game-card" data-game="whack-a-mole">
-                <div class="game-image">Image Placeholder</div>
+                <div class="game-image"><img class="game-thumb" alt="Whack-a-Mole thumbnail" src="Whack-a-mole.jpeg" /></div>
                 <span>Whack-a-Mole</span>
             </div>
             <div class="game-card" data-game="typing-speed-test">
-                <div class="game-image">Image Placeholder</div>
+                <div class="game-image"><img class="game-thumb" alt="Typing Speed Test thumbnail" src="" /></div>
                 <span>Typing Speed Test</span>
             </div>
             <div class="game-card" data-game="rock-paper-scissors">
-                <div class="game-image">Image Placeholder</div>
+                <div class="game-image"><img class="game-thumb" alt="Rock Paper Scissors thumbnail" src="Rock-Paper-Scissors.jpeg" /></div>
                 <span>Rock Paper Scissors</span>
             </div>
             <div class="game-card" data-game="number-guessing">
-                <div class="game-image">Image Placeholder</div>
+                <div class="game-image"><img class="game-thumb" alt="Number Guessing thumbnail" src="NumberGuessing.jpeg" /></div>
                 <span>Number Guessing</span>
+            </div>
+            <div class="game-card" data-game="reaction-time">
+                <div class="game-image"><img class="game-thumb" alt="Reaction Time Test thumbnail" src="ReactionTimeTest.png" /></div>
+                <span>Reaction Time Test</span>
             </div>
             
             <div class="game-card" data-game="color-flood">
-                <div class="game-image">Image Placeholder</div>
+                <div class="game-image"><img class="game-thumb" alt="Color Flood thumbnail" src="ColorFlood.png" /></div>
                 <span>Color Flood</span>
             </div>
             <div class="game-card" data-game="morse-code-trainer">
-                <div class="game-image">Image Placeholder</div>
+                <div class="game-image"><img class="game-thumb" alt="Morse Code Trainer thumbnail" src="MorseCodeTrainer.png" /></div>
                 <span>Morse Code Trainer</span>
             </div>
         </section>
-        <a href='https://ko-fi.com/W7W31O27PK' target='_blank'><img height='36' style='border:0px;height:36px;' src='https://storage.ko-fi.com/cdn/kofi5.png?v=6' border='0' alt='Buy Me a Coffee at ko-fi.com' /></a>
         <section id="simulation-idle">
+            <a href='https://ko-fi.com/W7W31O27PK' target='_blank'><img height='36' style='border:0px;height:36px;' src='https://storage.ko-fi.com/cdn/kofi5.png?v=6' border='0' alt='Support the page for better versions at ko-fi.com' /></a>
             <h2>Simulation and Idle Games</h2>
             <p>Immerse yourself in engaging simulations or relax with idle games that progress with minimal input.</p>
             <div class="game-card" data-game="cookie-clicker">
-                <div class="game-image">Image Placeholder</div>
+                <div class="game-image"><img class="game-thumb" alt="Cookie Clicker thumbnail" src="CookieClicker.jpeg" /></div>
                 <span>Cookie Clicker</span>
             </div>
             <div class="game-card" data-game="idle-miner">
-                <div class="game-image">Image Placeholder</div>
+                <div class="game-image"><img class="game-thumb" alt="Idle Miner thumbnail" src="" /></div>
                 <span>Idle Miner</span>
             </div>
             <div class="game-card" data-game="virtual-pet">
-                <div class="game-image">Image Placeholder</div>
+                <div class="game-image"><img class="game-thumb" alt="Virtual Pet thumbnail" src="" /></div>
                 <span>Virtual Pet</span>
             </div>
         </section>
@@ -1356,6 +1456,36 @@
             };
         }
 
+            /* Floating theme toggle HTML + behavior */
+            // create the button and insert into DOM
+            (function(){
+                const tpl = document.createElement('div');
+                tpl.innerHTML = `
+                    <button id="themeToggle" class="theme-toggle" aria-pressed="false" aria-label="Toggle theme (T)">
+                        <svg class="icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                            <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" fill="#070712"/>
+                        </svg>
+                    </button>
+                `;
+                document.body.appendChild(tpl.firstElementChild);
+
+                const toggle = document.getElementById('themeToggle');
+                function applyMode(mode){ if(mode === 'light'){ document.body.classList.add('light-mode'); toggle.setAttribute('aria-pressed','true'); } else { document.body.classList.remove('light-mode'); toggle.setAttribute('aria-pressed','false'); } }
+                // read persisted preference
+                try{ const pref = localStorage.getItem('site_theme_mode'); if(pref) applyMode(pref); }
+                catch(e){}
+
+                toggle.addEventListener('click', ()=>{
+                    const isLight = document.body.classList.contains('light-mode');
+                    const newMode = isLight ? 'dark' : 'light';
+                    applyMode(newMode);
+                    try{ localStorage.setItem('site_theme_mode', newMode); }catch(e){}
+                });
+
+                // keyboard shortcut T to toggle
+                document.addEventListener('keydown', (e)=>{ if(e.key.toLowerCase() === 't'){ const isLight = document.body.classList.contains('light-mode'); const newMode = isLight ? 'dark' : 'light'; applyMode(newMode); try{ localStorage.setItem('site_theme_mode', newMode); }catch(e){} } });
+            })();
+
                 function loadSudokuGame() {
                         modalBody.innerHTML = `
                                 <style>
@@ -1672,28 +1802,20 @@
                                     loop();
                             }
 
+
                                         function loadFlappyBirdGame() {
                                                 modalBody.innerHTML = `
-                                                                <style>
-                                                                    /* Make Flappy responsive inside the modal: constrain to viewport and keep layout stable */
-                                                                    #fb-container {
-                                                                        width: min(420px, 90vw);
-                                                                        height: min(640px, calc(90vh - 120px));
-                                                                        max-height: calc(90vh - 120px);
-                                                                        background: #71c5cf;
-                                                                        position: relative;
-                                                                        border: 2px solid #000;
-                                                                        touch-action: none;
-                                                                        margin: 0 auto;
-                                                                        overflow: hidden;
-                                                                    }
-                                                                    #fb-bird { width: 40px; height: 30px; background: yellow; position: absolute; left: 100px; border-radius: 50%; border: 2px solid #000; }
-                                                                    .fb-pipe { width: 60px; background: green; position: absolute; border: 2px solid #000; }
-                                                                    #fb-score { position: absolute; top: 12px; left: 12px; font-size: 20px; color: white; text-shadow: 2px 2px 2px #000; z-index: 20 }
-                                                                    #fb-game-over { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 28px; color: red; display: none; z-index: 30 }
-                                                                    #fb-controls { margin-top: 12px; display:flex; gap:8px; justify-content:center; }
-                                                                    #fb-controls button { padding: 8px 14px; font-size: 16px; border-radius:6px; border:none; cursor:pointer; }
-                                                                </style>
+                                                        <style>
+                                                            /* Responsive flappy container */
+                                                            #fb-container { width: min(90vw, 420px); aspect-ratio: 2 / 3; background: #71c5cf; position: relative; border: 2px solid #000; touch-action: none; overflow: hidden; max-height: 90vh; margin: 0 auto; }
+                                                            /* Bird uses relative sizing so it scales with the container */
+                                                            #fb-bird { width: 8%; max-width: 40px; aspect-ratio: 4 / 3; height: auto; background: yellow; position: absolute; left: 18%; top: 50%; transform: translateY(-50%); border-radius: 50%; border: 2px solid #000; }
+                                                            .fb-pipe { width: 14%; max-width: 60px; background: green; position: absolute; border: 2px solid #000; box-sizing: border-box; }
+                                                            #fb-score { position: absolute; top: 8px; left: 12px; font-size: clamp(14px, 4vw, 24px); color: white; text-shadow: 2px 2px 2px #000; }
+                                                            #fb-game-over { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: clamp(20px, 5vw, 36px); color: red; display: none; }
+                                                            #fb-controls { margin-top: 12px; display:flex; gap:8px; justify-content:center; }
+                                                            #fb-controls button { padding: 8px 14px; font-size: 16px; border-radius:6px; border:none; cursor:pointer; }
+                                                        </style>
                                                         <div id="fb-wrapper">
                                                             <div id="fb-container">
                                                                 <div id="fb-bird"></div>
@@ -1714,7 +1836,7 @@
                                                 const startBtn = document.getElementById('fb-start');
                                                 const pauseBtn = document.getElementById('fb-pause');
 
-                                                let birdY = 300; let birdVelocity = 0; const gravity = 0.4; const flap = -6.0; let score = 0; let gameOver = false; let pipes = []; const pipeSpeed = 2; const pipeGap = 150; const pipeWidth = 60; const pipeFrequency = 1500; let gameStarted = false; let gamePaused = false; let isFlapping = false; let pipeInterval = null;
+                                                let birdY = 0; let birdVelocity = 0; const gravity = 0.4; const flap = -6.0; let score = 0; let gameOver = false; let pipes = []; const pipeSpeed = 2; const pipeGap = 150; const pipeWidth = 60; const pipeFrequency = 1500; let gameStarted = false; let gamePaused = false; let isFlapping = false; let pipeInterval = null;
 
                                                 function updateBird() {
                                                         if (gameStarted && !gamePaused && !gameOver) {
@@ -1737,7 +1859,7 @@
 
                                                 function endGame(){ gameOver = true; gameStarted = false; gameOverDisplay.style.display = 'block'; clearInterval(pipeInterval); startBtn.textContent = 'Restart'; }
 
-                                                function startGame(){ if (!gameStarted) { gameStarted = true; gameOver = false; gamePaused = false; score = 0; birdY = 300; birdVelocity = 0; bird.style.top = birdY + 'px'; scoreDisplay.textContent = `Score: ${score}`; gameOverDisplay.style.display = 'none'; pipes.forEach(p=>{ p.top.remove(); p.bottom.remove(); }); pipes = []; pipeInterval = setInterval(createPipe, pipeFrequency); startBtn.textContent = 'Start'; pauseBtn.textContent = 'Pause'; } }
+                                                function startGame(){ if (!gameStarted) { gameStarted = true; gameOver = false; gamePaused = false; score = 0; birdY = Math.floor(gameContainer.clientHeight / 2); birdVelocity = 0; bird.style.top = birdY + 'px'; scoreDisplay.textContent = `Score: ${score}`; gameOverDisplay.style.display = 'none'; pipes.forEach(p=>{ p.top.remove(); p.bottom.remove(); }); pipes = []; if(pipeInterval) clearInterval(pipeInterval); pipeInterval = setInterval(createPipe, pipeFrequency); startBtn.textContent = 'Start'; pauseBtn.textContent = 'Pause'; } }
 
                                                 function togglePause(){ if (gameStarted && !gameOver) { gamePaused = !gamePaused; pauseBtn.textContent = gamePaused ? 'Resume' : 'Pause'; } }
 
@@ -2273,6 +2395,8 @@
                                                                                 <h3>Morse Code Trainer</h3>
                                                                                 <div class="sub">Learn Morse; listen, type, and test your recognition.</div>
                                                                             </div>
+
+                                                                            
                                                                             <div class="controls">
                                                                                 <label class="sub">Mode</label>
                                                                                 <select id="morse-mode">
@@ -2555,6 +2679,8 @@
                                     boardEl.appendChild(cell);
                                 }
                             }
+                                        
+                                                                                
                             updateRemaining();
                         }
 
@@ -2610,6 +2736,415 @@
                                         boardEl.innerHTML = ''; paletteEl.innerHTML = ''; }catch(e){ console.error('colorflood cleanup', e); } activeGameCleanup = null; };
                 }
 
+                                // Number Guessing loader (script scope)
+                                function loadNumberGuessingGame(){
+                                        modalBody.innerHTML = `
+                                                <style>
+                                                    /* Scoped styles for Number Guessing */
+                                                    .ng-wrap{font-family:system-ui,Arial,sans-serif;color:#e6eef6}
+                                                    .ng-wrap .small{font-size:13px;color:#9fb0c4}
+                                                    .ng-panel{padding:12px;background:linear-gradient(180deg,#071425,#001220);border-radius:10px}
+                                                    .ng-stats{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+                                                    .ng-stat{background:rgba(255,255,255,0.02);padding:8px;border-radius:8px;min-width:110px;text-align:center}
+                                                    .ng-input{display:flex;gap:8px;align-items:center;margin-top:12px}
+                                                    .ng-guess{padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:#9fb0c4;width:160px}
+                                                    .ng-feedback{min-height:40px;font-weight:700;margin-top:8px}
+                                                    .ng-history{max-height:240px;overflow:auto;margin-top:8px}
+                                                    .ng-btns{display:flex;gap:8px;margin-top:8px}
+                                                </style>
+                                                <div class="ng-wrap">
+                                                    <h3 id="gameTitle">Number Guessing</h3>
+                                                    <div class="ng-panel">
+                                                        <div class="ng-stats">
+                                                            <div class="ng-stat"><div class="small">Attempts</div><div id="ng-attempts" style="font-weight:800">0</div></div>
+                                                            <div class="ng-stat"><div class="small">Best (fewest)</div><div id="ng-best" style="font-weight:800">—</div></div>
+                                                            <div class="ng-stat"><div class="small">Range</div><div id="ng-range" style="font-weight:800">1–100</div></div>
+                                                        </div>
+                                                        <div style="margin-top:12px">
+                                                            <div class="prompt">I'm thinking of a number...</div>
+                                                            <div class="small" id="ng-hintText">Pick a difficulty and press New Game or start guessing.</div>
+                                                        </div>
+                                                        <div class="ng-input">
+                                                            <input id="ng-guessInput" class="ng-guess" type="number" inputmode="numeric" placeholder="Enter your guess" aria-label="Guess" />
+                                                            <button id="ng-submitBtn" class="primary">Submit</button>
+                                                            <button id="ng-hintBtn" class="ghost">Hint</button>
+                                                            <button id="ng-giveUpBtn" class="ghost">Give Up</button>
+                                                        </div>
+                                                        <div class="ng-feedback" id="ng-feedback" aria-live="polite"></div>
+                                                        <div class="small">Tips: Enter to submit, Esc to reset. Use Hint for a directional clue.</div>
+                                                    </div>
+                                                    <div style="margin-top:12px">
+                                                        <strong>Recent Games</strong>
+                                                        <div id="ng-history" class="ng-history small" aria-live="polite">No games yet</div>
+                                                        <div class="ng-btns">
+                                                            <button id="ng-exportBtn" class="ghost">Export Save</button>
+                                                            <button id="ng-importBtn" class="ghost">Import Save</button>
+                                                            <button id="ng-clearBtn" class="ghost">Clear Save</button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                        `;
+
+                                        // Scoped refs
+                                        const ngGuessInput = modalBody.querySelector('#ng-guessInput');
+                                        const ngSubmit = modalBody.querySelector('#ng-submitBtn');
+                                        const ngHint = modalBody.querySelector('#ng-hintBtn');
+                                        const ngGiveUp = modalBody.querySelector('#ng-giveUpBtn');
+                                        const ngFeedback = modalBody.querySelector('#ng-feedback');
+                                        const ngAttempts = modalBody.querySelector('#ng-attempts');
+                                        const ngBest = modalBody.querySelector('#ng-best');
+                                        const ngRange = modalBody.querySelector('#ng-range');
+                                        const ngHintText = modalBody.querySelector('#ng-hintText');
+                                        const ngHistory = modalBody.querySelector('#ng-history');
+                                        const ngExport = modalBody.querySelector('#ng-exportBtn');
+                                        const ngImport = modalBody.querySelector('#ng-importBtn');
+                                        const ngClear = modalBody.querySelector('#ng-clearBtn');
+
+                                        const SAVE_KEY = 'num_guess_save_v1';
+
+                                        // local state
+                                        let config = { difficulty: 'normal', min:1, max:100 };
+                                        let game = { target: null, attempts:0, startedAt: null, endedAt: null, won:false };
+                                        let stats = { best: null, games: [] };
+
+                                        function setRangeForDifficulty(d){ if(d==='easy') return {min:1,max:20}; if(d==='hard') return {min:1,max:1000}; return {min:1,max:100}; }
+                                        function randBetween(a,b){ return Math.floor(Math.random()*(b-a+1))+a; }
+                                        function formatDate(ts){ return new Date(ts).toLocaleString(); }
+
+                                        function renderHistory(){ ngHistory.innerHTML=''; if(!stats.games || stats.games.length===0){ ngHistory.textContent='No games recorded yet'; return; } stats.games.slice(0,40).forEach(g=>{ const d=document.createElement('div'); d.style.padding='6px 4px'; d.textContent = `${formatDate(g.time)} • ${g.difficulty} • ${g.range} • ${g.won?'Win':'Lose'} • Attempts: ${g.attempts} • Number: ${g.target}`; ngHistory.appendChild(d); }); }
+                                        function updateBest(){ const wins = stats.games.filter(g=>g.won); if(wins.length===0){ stats.best=null; ngBest.textContent='—'; return; } wins.sort((a,b)=>a.attempts-b.attempts); stats.best=wins[0].attempts; ngBest.textContent=stats.best; }
+
+                                        function saveState(){ const payload={stats, lastGame:game, config}; try{ localStorage.setItem(SAVE_KEY, JSON.stringify(payload)); }catch(e){} }
+                                        function loadState(){ try{ const raw = localStorage.getItem(SAVE_KEY); if(raw){ const obj=JSON.parse(raw); if(obj.stats) stats=obj.stats; if(obj.config) config=obj.config; } }catch(e){} updateBest(); renderHistory(); }
+                                        function exportSave(){ const raw = localStorage.getItem(SAVE_KEY) || JSON.stringify({stats, config}); const blob=new Blob([raw],{type:'application/json'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='num_guess_save.json'; document.body.appendChild(a); a.click(); setTimeout(()=>{ URL.revokeObjectURL(url); a.remove(); },500); }
+                                        function importSave(){ const input=document.createElement('input'); input.type='file'; input.accept='application/json'; input.onchange=async (e)=>{ const f=e.target.files[0]; if(!f) return; const text=await f.text(); try{ localStorage.setItem(SAVE_KEY, text); loadState(); alert('Save imported'); }catch(err){ alert('Invalid file'); } }; input.click(); }
+                                        function clearSave(){ if(!confirm('Clear saved history and best score?')) return; localStorage.removeItem(SAVE_KEY); stats={best:null,games:[]}; game={target:null,attempts:0,startedAt:null,endedAt:null,won:false}; updateBest(); renderHistory(); }
+
+                                        function newGame(difficulty){ config.difficulty = difficulty || 'normal'; const r = setRangeForDifficulty(config.difficulty); config.min=r.min; config.max=r.max; game.target = randBetween(config.min, config.max); game.attempts=0; game.startedAt=Date.now(); game.endedAt=null; game.won=false; ngAttempts.textContent='0'; ngRange.textContent=`${config.min}–${config.max}`; ngFeedback.textContent=''; ngHintText.textContent=`New game started. Guess a number between ${config.min} and ${config.max}.`; ngGuessInput.value=''; ngGuessInput.min=config.min; ngGuessInput.max=config.max; ngGuessInput.focus(); saveState(); }
+
+                                        function submitGuess(){ if(game.target===null){ ngFeedback.textContent='Start a new game first.'; return; } const val=parseInt(ngGuessInput.value,10); if(Number.isNaN(val)){ ngFeedback.textContent='Please enter a valid number.'; return; } if(val<config.min || val>config.max){ ngFeedback.textContent=`Out of range (${config.min}–${config.max}).`; return; } game.attempts++; ngAttempts.textContent=game.attempts; if(val===game.target){ game.won=true; game.endedAt=Date.now(); ngFeedback.innerHTML=`<span class="ok">Correct! The number was ${game.target}.</span>`; recordGame(true); updateBest(); saveState(); } else { const diff=Math.abs(val-game.target); const hotCold = diff <= Math.max(1, Math.floor((config.max-config.min)*0.06)) ? 'hot' : 'cold'; const dir = val < game.target ? 'higher' : 'lower'; ngFeedback.innerHTML = `<span class="${hotCold==='hot'?'hot':'cold'}">Try ${dir}. (${hotCold.toUpperCase()})</span>`; ngHintText.textContent = `Hint: the number is ${dir} than ${val}.`; saveState(); } ngGuessInput.value=''; ngGuessInput.focus(); }
+
+                                        function giveUp(){ if(game.target===null){ ngFeedback.textContent='No active game.'; return; } game.endedAt=Date.now(); game.won=false; ngFeedback.innerHTML=`<span class="bad">You gave up. The number was ${game.target}.</span>`; recordGame(false); saveState(); }
+
+                                        function provideHint(){ if(game.target===null){ ngHintText.textContent='Start a game to get hints.'; return; } game.attempts++; ngAttempts.textContent=game.attempts; const span = Math.max(1, Math.floor((config.max-config.min)*0.25)); let low=Math.max(config.min, game.target-span); let high=Math.min(config.max, game.target+span); ngHintText.textContent = `Hint: the number is between ${low} and ${high}.`; saveState(); }
+
+                                        function recordGame(won){ const entry={ won:!!won, attempts:game.attempts, difficulty:config.difficulty, range:`${config.min}–${config.max}`, target:game.target, time:Date.now() }; stats.games.unshift(entry); if(stats.games.length>50) stats.games.length=50; renderHistory(); }
+
+                                        // wire events
+                                        ngSubmit.addEventListener('click', submitGuess);
+                                        ngHint.addEventListener('click', provideHint);
+                                        ngGiveUp.addEventListener('click', giveUp);
+                                        ngExport.addEventListener('click', exportSave);
+                                        ngImport.addEventListener('click', importSave);
+                                        ngClear.addEventListener('click', clearSave);
+
+                                        const keyHandler = (e)=>{ if(e.key==='Enter'){ submitGuess(); } if(e.key==='Escape'){ clearSave(); } };
+                                        document.addEventListener('keydown', keyHandler);
+
+                                        // init
+                                        loadState(); const initialRange = setRangeForDifficulty(config.difficulty); ngRange.textContent = `${initialRange.min}–${initialRange.max}`; ngHintText.textContent = 'Choose difficulty and start a new game.'; newGame(config.difficulty);
+
+                                        // expose for debug
+                                        window._numGuess = { newGame, submitGuess, provideHint, giveUp, stats, game };
+
+                                        // cleanup when modal closes
+                                        activeGameCleanup = function(){ try{ ngSubmit.removeEventListener('click', submitGuess); ngHint.removeEventListener('click', provideHint); ngGiveUp.removeEventListener('click', giveUp); ngExport.removeEventListener('click', exportSave); ngImport.removeEventListener('click', importSave); ngClear.removeEventListener('click', clearSave); document.removeEventListener('keydown', keyHandler); }catch(e){ console.error('numguess cleanup', e); } activeGameCleanup = null; };
+
+                                }
+
+                                                        // Breakout loader
+                                                        function loadBreakoutGame(){
+                                                                modalBody.innerHTML = `
+                                                                        <style>
+                                                                            :root{ --bg:#000; --panel:#071221; --accent:#ffd400; --muted:#9fb0c4; --text:#e6eef6 }
+                                                                            .bo-wrap{max-width:920px;margin:6px auto;padding:12px;color:var(--text);font-family:system-ui,Arial,sans-serif}
+                                                                            .bo-controls{display:flex;gap:8px;align-items:center;justify-content:center;margin:8px 0}
+                                                                            #breakout-canvas{border:2px solid rgba(255,255,255,0.06);background:#000;display:block;margin:0 auto}
+                                                                            .stat{color:var(--muted);font-size:14px;margin:4px}
+                                                                        </style>
+                                                                        <div class="bo-wrap">
+                                                                            <h3 id="gameTitle">Breakout</h3>
+                                                                            <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+                                                                                <div class="stat" id="bo-score">Score: 0</div>
+                                                                                <div class="stat" id="bo-lives">Lives: 3</div>
+                                                                                <div class="stat" id="bo-level"></div>
+                                                                            </div>
+                                                                            <canvas id="breakout-canvas" width="800" height="600" aria-label="Breakout canvas"></canvas>
+                                                                            <div class="bo-controls">
+                                                                                <div id="bo-levelSelection" style="display:flex;gap:6px">
+                                                                                    <button id="bo-easy" class="ghost">Easy</button>
+                                                                                    <button id="bo-medium" class="ghost">Medium</button>
+                                                                                    <button id="bo-hard" class="ghost">Hard</button>
+                                                                                </div>
+                                                                                <button id="bo-start" class="primary">Start</button>
+                                                                                <button id="bo-restart" class="ghost">Restart</button>
+                                                                            </div>
+                                                                            <input type="range" id="bo-paddleSlider" min="0" max="100" value="50" style="width:320px;margin:8px auto;display:block" />
+                                                                            <div id="bo-startMessage" style="text-align:center;color:yellow;display:none">Click or Press Space to Launch Ball</div>
+                                                                        </div>
+                                                                `;
+
+                                                                // Scoped refs
+                                                                const canvas = modalBody.querySelector('#breakout-canvas');
+                                                                const ctx = canvas.getContext('2d');
+                                                                const scoreElement = modalBody.querySelector('#bo-score');
+                                                                const livesElement = modalBody.querySelector('#bo-lives');
+                                                                const levelElement = modalBody.querySelector('#bo-level');
+                                                                const startButton = modalBody.querySelector('#bo-start');
+                                                                const easyButton = modalBody.querySelector('#bo-easy');
+                                                                const mediumButton = modalBody.querySelector('#bo-medium');
+                                                                const hardButton = modalBody.querySelector('#bo-hard');
+                                                                const restartButton = modalBody.querySelector('#bo-restart');
+                                                                const paddleSlider = modalBody.querySelector('#bo-paddleSlider');
+                                                                const startMessage = modalBody.querySelector('#bo-startMessage');
+
+                                                                // Game state (copied/adapted)
+                                                                let paddleWidth = 150; const paddleHeight = 10; const paddleSpeed = 8; let paddleX = canvas.width / 2 - paddleWidth / 2;
+                                                                const ballSize = 10; let ballX = canvas.width / 2; let ballY = canvas.height - paddleHeight - 30 - ballSize; let ballDX = 0; let ballDY = 0;
+                                                                const brickWidth = 80; const brickHeight = 30; const brickRows = 5; const brickCols = Math.floor(canvas.width / brickWidth);
+                                                                let bricks = []; let score = 0; let lives = 3; let selectedLevel = null; let gameState = 'menu'; let ballOnPaddle = true;
+                                                                const levels = { easy: { brickChance: 0.5, ballSpeed: 4, paddleWidth: 150, name: 'Easy' }, medium: { brickChance: 0.7, ballSpeed: 5, paddleWidth: 120, name: 'Medium' }, hard: { brickChance: 0.9, ballSpeed: 6, paddleWidth: 90, name: 'Hard' } };
+
+                                                                function getRandomColor(){ const r = Math.floor(Math.random()*256); const g = Math.floor(Math.random()*256); const b = Math.floor(Math.random()*256); return `rgb(${r},${g},${b})`; }
+                                                                function initBricks(){ const brickChance = levels[selectedLevel].brickChance; bricks = []; for(let row=0;row<brickRows;row++){ bricks[row]=[]; for(let col=0;col<brickCols;col++){ if(Math.random() > 1 - brickChance){ bricks[row][col] = { x: col*brickWidth, y: row*brickHeight+50, status:1, color: getRandomColor() }; } else bricks[row][col] = { status:0 }; } } }
+
+                                                                // Input handling
+                                                                let leftPressed = false; let rightPressed = false; function onKeyDown(e){ if(e.key==='ArrowLeft') leftPressed=true; if(e.key==='ArrowRight') rightPressed=true; if(e.key===' ' && gameState==='ready'){ launchBall(); } }
+                                                                function onKeyUp(e){ if(e.key==='ArrowLeft') leftPressed=false; if(e.key==='ArrowRight') rightPressed=false; }
+                                                                function onMouseMove(e){ if(gameState==='playing' || gameState==='ready'){ const rect = canvas.getBoundingClientRect(); const relativeX = e.clientX - rect.left; if(relativeX>0 && relativeX<canvas.width){ paddleX = relativeX - paddleWidth/2; if(paddleX<0) paddleX=0; if(paddleX>canvas.width-paddleWidth) paddleX=canvas.width-paddleWidth; paddleSlider.value = (paddleX/(canvas.width-paddleWidth))*100; if(ballOnPaddle) ballX = paddleX + paddleWidth/2; } } }
+                                                                function onSliderInput(){ if(gameState==='playing' || gameState==='ready'){ const sliderValue = paddleSlider.value; paddleX = (sliderValue/100)*(canvas.width-paddleWidth); if(ballOnPaddle) ballX = paddleX + paddleWidth/2; } }
+
+                                                                function launchBall(){ const ballSpeed = levels[selectedLevel].ballSpeed; ballDX = ballSpeed * (Math.random()>0.5?1:-1); ballDY = -ballSpeed; ballOnPaddle = false; gameState='playing'; startMessage.style.display='none'; }
+
+                                                                // animation handle (declare early so startLevel can use it)
+                                                                let animationId = null;
+
+                                                                // Start / level selection
+                                                                function startLevel(levelKey){
+                                                                    selectedLevel = levelKey;
+                                                                    paddleWidth = levels[selectedLevel].paddleWidth;
+                                                                    paddleX = canvas.width/2 - paddleWidth/2;
+                                                                    gameState='ready';
+                                                                    initBricks();
+                                                                    ballOnPaddle=true;
+                                                                    ballX = paddleX + paddleWidth/2;
+                                                                    ballY = canvas.height - paddleHeight - 30 - ballSize;
+                                                                    startMessage.style.display='block';
+                                                                    levelElement.textContent = `Level: ${levels[selectedLevel].name}`;
+                                                                    // ensure the game loop is running
+                                                                    if(animationId) cancelAnimationFrame(animationId);
+                                                                    animationId = requestAnimationFrame(gameLoop);
+                                                                }
+                                                                easyButton.addEventListener('click', ()=>startLevel('easy'));
+                                                                mediumButton.addEventListener('click', ()=>startLevel('medium'));
+                                                                hardButton.addEventListener('click', ()=>startLevel('hard'));
+                                                                // Show level buttons when pressing Start
+                                                                startButton.addEventListener('click', ()=>{
+                                                                    const lvlBox = modalBody.querySelector('#bo-levelSelection');
+                                                                    if(lvlBox) lvlBox.style.display = 'flex';
+                                                                });
+
+                                                                restartButton.addEventListener('click', ()=>{ restartButton.style.display='none'; gameState='menu'; score=0; lives=3; scoreElement.textContent=`Score: ${score}`; livesElement.textContent=`Lives: ${lives}`; levelElement.textContent=''; ballX = canvas.width/2; ballY = canvas.height - paddleHeight - 30 - ballSize; ballDX=0; ballDY=0; ballOnPaddle=true; startMessage.style.display='none'; });
+
+                                                                function gameLoop(){ if(gameState!=='playing' && gameState!=='ready') return; if(leftPressed && paddleX>0){ paddleX -= paddleSpeed; paddleSlider.value = (paddleX/(canvas.width-paddleWidth))*100; if(ballOnPaddle) ballX = paddleX + paddleWidth/2; } if(rightPressed && paddleX < canvas.width - paddleWidth){ paddleX += paddleSpeed; paddleSlider.value = (paddleX/(canvas.width-paddleWidth))*100; if(ballOnPaddle) ballX = paddleX + paddleWidth/2; }
+                                                                        if(!ballOnPaddle){ ballX += ballDX; ballY += ballDY; if(ballX <=0 || ballX >= canvas.width - ballSize) ballDX *= -1; if(ballY <=0) ballDY *= -1; if(ballY >= canvas.height){ lives--; livesElement.textContent = `Lives: ${lives}`; if(lives>0){ ballX = paddleX + paddleWidth/2; ballY = canvas.height - paddleHeight - 30 - ballSize; ballDX=0; ballDY=0; ballOnPaddle=true; gameState='ready'; startMessage.style.display='block'; } else { gameState='gameover'; modalBody.querySelector('#gameTitle').textContent='Failed! Game Over'; restartButton.style.display='inline-block'; return; } }
+                                                                                if(ballY + ballSize > canvas.height - paddleHeight - 30 && ballX > paddleX && ballX < paddleX + paddleWidth){ ballDY *= -1; const hitPos = (ballX - paddleX) / paddleWidth; ballDX = 8 * (hitPos - 0.5); }
+                                                                                let allBricksDestroyed = true; for(let row=0;row<brickRows;row++){ for(let col=0;col<brickCols;col++){ const brick = bricks[row][col]; if(brick.status === 1){ allBricksDestroyed = false; if(ballX > brick.x && ballX < brick.x + brickWidth && ballY > brick.y && ballY < brick.y + brickHeight){ ballDY *= -1; brick.status = 0; score += 10; scoreElement.textContent = `Score: ${score}`; } } } } if(allBricksDestroyed){ gameState='gamewon'; modalBody.querySelector('#gameTitle').textContent='You Win!'; restartButton.style.display='inline-block'; return; } }
+                                                                        // Draw
+                                                                        ctx.fillStyle = '#000'; ctx.fillRect(0,0,canvas.width,canvas.height); ctx.fillStyle = '#00f'; ctx.fillRect(paddleX, canvas.height - paddleHeight - 30, paddleWidth, paddleHeight); ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(ballX, ballY, ballSize/2, 0, Math.PI*2); ctx.fill(); for(let row=0;row<brickRows;row++){ for(let col=0;col<brickCols;col++){ const brick = bricks[row][col]; if(brick.status === 1){ ctx.fillStyle = brick.color; ctx.fillRect(brick.x, brick.y, brickWidth - 2, brickHeight - 2); } } }
+                                                                        animationId = requestAnimationFrame(gameLoop);
+                                                                }
+
+                                                                // wiring
+                                                                canvas.addEventListener('mousemove', onMouseMove);
+                                                                paddleSlider.addEventListener('input', onSliderInput);
+                                                                document.addEventListener('keydown', onKeyDown);
+                                                                document.addEventListener('keyup', onKeyUp);
+                                                                canvas.addEventListener('click', ()=>{ if(gameState==='ready'){ launchBall(); } });
+
+                                                                // init
+                                                                scoreElement.textContent = `Score: ${score}`; livesElement.textContent = `Lives: ${lives}`; levelElement.textContent = '';
+                                                                // start an initial loop only when a level is chosen (startLevel will kick it off)
+                                                                // but ensure the canvas repaints once so controls appear
+                                                                animationId = requestAnimationFrame(()=>{ ctx.clearRect(0,0,canvas.width,canvas.height); });
+
+                                                                // expose for debug
+                                                                window._breakout = { startLevel, launchBall };
+
+                                                                // cleanup
+                                                                activeGameCleanup = function(){ try{ canvas.removeEventListener('mousemove', onMouseMove); paddleSlider.removeEventListener('input', onSliderInput); document.removeEventListener('keydown', onKeyDown); document.removeEventListener('keyup', onKeyUp); canvas.removeEventListener('click', ()=>{}); if(animationId) cancelAnimationFrame(animationId); }catch(e){ console.error('breakout cleanup', e); } activeGameCleanup = null; };
+
+                                                        }
+
+                                                                            // Reaction Time Test loader
+                                                                            function loadReactionTestGame(){
+                                                                                    modalBody.innerHTML = `
+                                                                                            <style>
+                                                                                                :root{ --bg:#071425; --panel:#0f1724; --accent:#06b6d4; --ok:#16a34a; --muted:#9fb0c4; --danger:#ef4444; }
+                                                                                                .rt-wrap{max-width:980px;margin:18px auto;padding:12px;border-radius:10px;color:#e6eef6;font-family:Inter,system-ui,Segoe UI,Roboto,Arial}
+                                                                                                .rt-controls select,input,button{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--muted);padding:8px 10px;border-radius:8px}
+                                                                                                .rt-panel{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0));padding:12px;border-radius:10px}
+                                                                                                .rt-test{display:flex;flex-direction:column;align-items:center;gap:12px;padding:18px;border-radius:10px;background:rgba(255,255,255,0.02);min-height:260px;justify-content:center}
+                                                                                                .rt-signal{width:100%;height:160px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:800;user-select:none;cursor:pointer;transition:background 120ms}
+                                                                                                .rt-signal.idle{background:linear-gradient(180deg,#0b1b2a,#071018);color:var(--muted)}
+                                                                                                .rt-signal.wait{background:linear-gradient(180deg,#334155,#0b2740);color:var(--muted)}
+                                                                                                .rt-signal.go{background:linear-gradient(90deg,#06b6d4,#7dd3fc);color:#022}
+                                                                                                .rt-signal.late{background:linear-gradient(90deg,#fca5a5,#fecaca);color:#420202}
+                                                                                                .small{font-size:13px;color:var(--muted)}
+                                                                                                .rt-history{max-height:360px;overflow:auto;padding:6px;border-radius:8px;background:rgba(255,255,255,0.01)}
+                                                                                            </style>
+
+                                                                                            <div class="rt-wrap">
+                                                                                                <header style="display:flex;justify-content:space-between;align-items:center">
+                                                                                                    <div>
+                                                                                                        <h3>Reaction Time Test</h3>
+                                                                                                        <div class="small">Press Space or Enter to react.</div>
+                                                                                                    </div>
+                                                                                                    <div class="rt-controls">
+                                                                                                        <label class="small">Mode</label>
+                                                                                                        <select id="rt-mode">
+                                                                                                            <option value="single">Single</option>
+                                                                                                            <option value="bestOf5" selected>Best of 5</option>
+                                                                                                            <option value="bestOf10">Best of 10</option>
+                                                                                                        </select>
+                                                                                                        <label class="small">Min delay ms</label>
+                                                                                                        <input id="rt-minDelay" type="number" value="800" min="200" style="width:90px" />
+                                                                                                        <label class="small">Max delay ms</label>
+                                                                                                        <input id="rt-maxDelay" type="number" value="2200" min="300" style="width:90px" />
+                                                                                                        <button id="rt-startBtn" class="primary">Start</button>
+                                                                                                    </div>
+                                                                                                </header>
+
+                                                                                                <main style="display:grid;grid-template-columns:1fr 320px;gap:18px;margin-top:14px">
+                                                                                                    <section class="rt-panel">
+                                                                                                        <div class="rt-test">
+                                                                                                            <div id="rt-signal" class="rt-signal idle" tabindex="0" role="button" aria-live="polite">Click Start to begin</div>
+                                                                                                            <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center">
+                                                                                                                <div class="small">Last</div><div id="rt-lastTime" class="small">—</div>
+                                                                                                                <div class="small">Best</div><div id="rt-bestTime" class="small">—</div>
+                                                                                                                <div class="small">Average</div><div id="rt-avgTime" class="small">—</div>
+                                                                                                            </div>
+                                                                                                            <div style="display:flex;gap:8px">
+                                                                                                                <button id="rt-resetBtn" class="ghost">Reset History</button>
+                                                                                                                <button id="rt-exportBtn" class="ghost">Export</button>
+                                                                                                                <button id="rt-importBtn" class="ghost">Import</button>
+                                                                                                            </div>
+                                                                                                            <div class="small">Tip: if you react before the signal you will get a penalty and trial restarts</div>
+                                                                                                        </div>
+                                                                                                    </section>
+
+                                                                                                    <aside class="rt-panel">
+                                                                                                        <div style="display:flex;justify-content:space-between;align-items:center">
+                                                                                                            <strong>Session stats</strong>
+                                                                                                            <div class="small" id="rt-trialsLabel">0 / 5</div>
+                                                                                                        </div>
+                                                                                                        <div style="margin-top:8px;display:flex;flex-direction:column;gap:8px">
+                                                                                                            <div style="display:flex;justify-content:space-between;padding:8px;border-radius:8px;background:rgba(255,255,255,0.02)"><div class="small">Trials Completed</div><div id="rt-trialsDone">0</div></div>
+                                                                                                            <div style="display:flex;justify-content:space-between;padding:8px;border-radius:8px;background:rgba(255,255,255,0.02)"><div class="small">Fastest</div><div id="rt-fastest">— ms</div></div>
+                                                                                                            <div style="display:flex;justify-content:space-between;padding:8px;border-radius:8px;background:rgba(255,255,255,0.02)"><div class="small">Slowest</div><div id="rt-slowest">— ms</div></div>
+                                                                                                            <div style="display:flex;justify-content:space-between;padding:8px;border-radius:8px;background:rgba(255,255,255,0.02)"><div class="small">Average</div><div id="rt-average">— ms</div></div>
+                                                                                                        </div>
+
+                                                                                                        <div style="margin-top:12px">
+                                                                                                            <strong>History</strong>
+                                                                                                            <div id="rt-history" class="rt-history" aria-live="polite"></div>
+                                                                                                        </div>
+                                                                                                    </aside>
+                                                                                                </main>
+                                                                                            </div>
+                                                                                    `;
+
+                                                                                    // Scoped elements
+                                                                                    const START_BTN = modalBody.querySelector('#rt-startBtn');
+                                                                                    const SIGNAL = modalBody.querySelector('#rt-signal');
+                                                                                    const MODE = modalBody.querySelector('#rt-mode');
+                                                                                    const MIN_DELAY = modalBody.querySelector('#rt-minDelay');
+                                                                                    const MAX_DELAY = modalBody.querySelector('#rt-maxDelay');
+                                                                                    const LAST_TIME = modalBody.querySelector('#rt-lastTime');
+                                                                                    const BEST_TIME = modalBody.querySelector('#rt-bestTime');
+                                                                                    const AVG_TIME = modalBody.querySelector('#rt-avgTime');
+                                                                                    const TRIALS_LABEL = modalBody.querySelector('#rt-trialsLabel');
+                                                                                    const TRIALS_DONE = modalBody.querySelector('#rt-trialsDone');
+                                                                                    const FASTEST = modalBody.querySelector('#rt-fastest');
+                                                                                    const SLOWEST = modalBody.querySelector('#rt-slowest');
+                                                                                    const AVERAGE = modalBody.querySelector('#rt-average');
+                                                                                    const HISTORY_NODE = modalBody.querySelector('#rt-history');
+                                                                                    const RESET_BTN = modalBody.querySelector('#rt-resetBtn');
+                                                                                    const EXPORT_BTN = modalBody.querySelector('#rt-exportBtn');
+                                                                                    const IMPORT_BTN = modalBody.querySelector('#rt-importBtn');
+
+                                                                                    const STORAGE_KEY = 'reaction_time_history_v1';
+
+                                                                                    // Session state
+                                                                                    let session = {
+                                                                                        targetCount: 5,
+                                                                                        trials: [],
+                                                                                        currentTrial: null,
+                                                                                        running: false,
+                                                                                        state: 'idle', // idle, waiting, signalled, penalty
+                                                                                        timerId: null,
+                                                                                        signalTime: 0,
+                                                                                        startRequestedAt: 0
+                                                                                    };
+
+                                                                                    // Helpers
+                                                                                    function randInt(min, max){ return Math.floor(Math.random() * (max - min + 1)) + min; }
+                                                                                    function msNow(){ return performance.now(); }
+                                                                                    function loadHistory(){ try{ const raw = localStorage.getItem(STORAGE_KEY); if(!raw) return []; return JSON.parse(raw) || []; }catch(e){ return []; } }
+                                                                                    function saveHistory(data){ try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); }catch(e){} }
+
+                                                                                    // UI updates
+                                                                                    function updateSessionInfo(){ const total = session.targetCount; const done = session.trials.length; TRIALS_LABEL.textContent = `${done} / ${total}`; TRIALS_DONE.textContent = done; if(session.trials.length > 0){ const times = session.trials.map(t => t.result).filter(v => typeof v === 'number'); if(times.length){ const fastest = Math.min(...times); const slowest = Math.max(...times); const avg = Math.round(times.reduce((s,n)=>s+n,0) / times.length); FASTEST.textContent = `${fastest} ms`; SLOWEST.textContent = `${slowest} ms`; AVERAGE.textContent = `${avg} ms`; } else { FASTEST.textContent = '— ms'; SLOWEST.textContent = '— ms'; AVERAGE.textContent = '— ms'; } } else { FASTEST.textContent = '— ms'; SLOWEST.textContent = '— ms'; AVERAGE.textContent = '— ms'; } }
+
+                                                                                    function renderHistoryList(){ const stored = loadHistory(); HISTORY_NODE.innerHTML = ''; if(stored.length === 0){ HISTORY_NODE.textContent = 'No saved runs yet'; return; } stored.slice(0,40).forEach(entry => { const div = document.createElement('div'); div.className = 'history-item'; if(Array.isArray(entry.results)){ const avg = Math.round(entry.results.reduce((s,n)=>s+n,0)/entry.results.length); div.textContent = `${new Date(entry.at).toLocaleString()} • mode=${entry.mode} • trials=${entry.results.length} • avg=${avg} ms`; } else { div.textContent = `${new Date(entry.at).toLocaleString()} • single ${entry.result} ms`; } HISTORY_NODE.appendChild(div); }); }
+
+                                                                                    function setSignalIdle(){ SIGNAL.className = 'rt-signal idle'; SIGNAL.textContent = 'Click Start to begin'; }
+                                                                                    function setSignalWaiting(){ SIGNAL.className = 'rt-signal wait'; SIGNAL.textContent = 'Wait for green...'; }
+                                                                                    function setSignalGo(){ SIGNAL.className = 'rt-signal go'; SIGNAL.textContent = 'GO! Tap now!'; }
+                                                                                    function setSignalPenalty(){ SIGNAL.className = 'rt-signal late'; SIGNAL.textContent = 'Too soon! Penalty'; }
+
+                                                                                    // Flow
+                                                                                    function startSession(){ if(session.running) return; const mode = MODE.value; let targetCount = 1; if(mode === 'single') targetCount = 1; if(mode === 'bestOf5') targetCount = 5; if(mode === 'bestOf10') targetCount = 10; session.targetCount = targetCount; session.trials = []; session.running = true; session.state = 'idle'; session.startRequestedAt = msNow(); TRIALS_LABEL.textContent = `0 / ${session.targetCount}`; prepareNextTrial(); }
+
+                                                                                    function prepareNextTrial(){ if(!session.running) return; if(session.trials.length >= session.targetCount){ finishSession(); return; } session.state = 'waiting'; setSignalWaiting(); const minD = Math.max(0, parseInt(MIN_DELAY.value,10) || 800); const maxD = Math.max(minD+50, parseInt(MAX_DELAY.value,10) || 2200); const delay = randInt(minD, maxD); if(session.timerId) { clearTimeout(session.timerId); session.timerId = null; } session.timerId = setTimeout(()=> { signalNow(); }, delay); }
+
+                                                                                    function signalNow(){ session.state = 'signalled'; session.signalTime = msNow(); setSignalGo(); }
+
+                                                                                    function registerReaction(timeMs){ session.trials.push({ t: Date.now(), result: timeMs }); LAST_TIME.textContent = `${timeMs} ms`; const results = session.trials.map(t => t.result); const best = Math.min(...results); const avg = Math.round(results.reduce((s,n)=>s+n,0)/results.length); BEST_TIME.textContent = `${best} ms`; AVG_TIME.textContent = `${avg} ms`; updateSessionInfo(); if(session.trials.length >= session.targetCount){ finishSession(); } else { session.state = 'idle'; setSignalIdle(); setTimeout(()=> prepareNextTrial(), 700); } }
+
+                                                                                    function handlePenalty(){ session.state = 'penalty'; setSignalPenalty(); if(session.timerId) { clearTimeout(session.timerId); session.timerId = null; } setTimeout(()=> prepareNextTrial(), 900); }
+
+                                                                                    function finishSession(){ session.running = false; session.state = 'idle'; setSignalIdle(); const results = session.trials.map(t => t.result); const stored = loadHistory(); stored.unshift({ at: Date.now(), mode: MODE.value, results: results }); if(stored.length > 200) stored.length = 200; saveHistory(stored); renderHistoryList(); updateSessionInfo(); const avg = results.length ? Math.round(results.reduce((s,n)=>s+n,0)/results.length) : null; if(avg !== null){ LAST_TIME.textContent = `${results[results.length-1]} ms`; BEST_TIME.textContent = `${Math.min(...results)} ms`; AVG_TIME.textContent = `${avg} ms`; } }
+
+                                                                                    // Interaction handlers
+                                                                                    function onSignalClick(){ if(!session.running) return; if(session.state === 'waiting'){ handlePenalty(); return; } if(session.state === 'signalled'){ const t = msNow(); const reaction = Math.max(0, Math.round(t - session.signalTime)); registerReaction(reaction); return; } if(session.state === 'idle'){ prepareNextTrial(); } }
+
+                                                                                    // Key handler (scoped)
+                                                                                    const keyHandler = (e)=>{ if(e.key === ' ' || e.key === 'Enter'){ e.preventDefault(); onSignalClick(); } else if(e.key === 'Escape'){ stopSession(); } };
+
+                                                                                    function stopSession(){ session.running = false; session.state = 'idle'; if(session.timerId){ clearTimeout(session.timerId); session.timerId = null; } setSignalIdle(); updateSessionInfo(); }
+
+                                                                                    // Wire controls
+                                                                                    START_BTN.addEventListener('click', ()=> startSession());
+                                                                                    SIGNAL.addEventListener('pointerdown', (e)=>{ e.preventDefault(); onSignalClick(); });
+                                                                                    document.addEventListener('keydown', keyHandler);
+                                                                                    RESET_BTN.addEventListener('click', ()=>{ if(!confirm('Clear saved history?')) return; saveHistory([]); renderHistoryList(); });
+                                                                                    EXPORT_BTN.addEventListener('click', ()=>{ const data = loadHistory(); const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'}); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = 'reaction_history.json'; document.body.appendChild(a); a.click(); setTimeout(()=>{ URL.revokeObjectURL(url); a.remove(); }, 600); });
+                                                                                    IMPORT_BTN.addEventListener('click', ()=>{ const input = document.createElement('input'); input.type = 'file'; input.accept = 'application/json'; input.onchange = async (e) => { const f = e.target.files[0]; if(!f) return; const text = await f.text(); try{ const parsed = JSON.parse(text); if(Array.isArray(parsed)){ saveHistory(parsed); renderHistoryList(); alert('Imported history'); } else alert('Invalid file format'); } catch(err){ alert('Failed to import'); } }; input.click(); });
+
+                                                                                    // Init UI
+                                                                                    setSignalIdle(); renderHistoryList(); updateSessionInfo();
+
+                                                                                    // expose for debug
+                                                                                    window._reaction = { session, startSession, stopSession, loadHistory, saveHistory };
+
+                                                                                    // cleanup
+                                                                                    activeGameCleanup = function(){ try{ SIGNAL.removeEventListener('pointerdown', onSignalClick); START_BTN.removeEventListener('click', startSession); RESET_BTN.removeEventListener('click', ()=>{}); EXPORT_BTN.removeEventListener('click', ()=>{}); IMPORT_BTN.removeEventListener('click', ()=>{}); document.removeEventListener('keydown', keyHandler); if(session.timerId){ clearTimeout(session.timerId); session.timerId = null; } }catch(e){ console.error('reaction cleanup', e); } activeGameCleanup = null; };
+
+                                                                            }
+
+        
+
         gameCards.forEach(card => {
             card.addEventListener('click', () => {
                 const gameId = card.getAttribute('data-game');
@@ -2625,6 +3160,8 @@
                     loadSnakeGame();
                 } else if (gameId === 'pong') {
                     loadPongGame();
+                } else if (gameId === 'breakout') {
+                    loadBreakoutGame();
                 } else if (gameId === 'minesweeper') {
                     loadMinesweeperGame();
                 } else if (gameId === 'sudoku') {
@@ -2653,6 +3190,10 @@
                     loadRockPaperScissorsGame();
                 } else if (gameId === 'whack-a-mole') {
                     loadWhackAMoleGame();
+                } else if (gameId === 'number-guessing') {
+                    loadNumberGuessingGame();
+                } else if (gameId === 'reaction-time') {
+                    loadReactionTestGame();
                 } else {
                     modalBody.innerHTML = `
                         <h3 id="gameTitle">${gameName}</h3>
@@ -2660,6 +3201,7 @@
                     `;
                 }
                 modal.style.display = 'flex';
+                document.body.style.overflow = 'hidden';
             });
         });
 
@@ -2959,8 +3501,10 @@
                 }catch(e){ console.error('wam cleanup', e); } activeGameCleanup = null; };
         }
 
-        closeBtn.addEventListener('click', () => {
+        function closeModal() {
             modal.style.display = 'none';
+            // restore page scroll
+            document.body.style.overflow = '';
             if (snakeGameLoop) {
                 clearTimeout(snakeGameLoop);
             }
@@ -2974,6 +3518,13 @@
             if (typeof activeGameCleanup === 'function') {
                 try { activeGameCleanup(); } catch (e) { console.error('cleanup failed', e); }
             }
+        }
+
+        closeBtn.addEventListener('click', closeModal);
+
+        // allow clicking the backdrop to close modal (but not clicks inside modal-content)
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) closeModal();
         });
 
         // Console log for arcade vibe
@@ -2981,4 +3532,3 @@
     </script>
 </body>
 </html>
-
